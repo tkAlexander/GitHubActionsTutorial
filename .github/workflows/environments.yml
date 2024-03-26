@@ -34,7 +34,7 @@ jobs:
   verify:
     needs: list-versions
     runs-on: ubuntu-latest
-    
+    if: ${{ needs.list-versions.outputs.matrix != '[]' && needs.list-versions.outputs.matrix != '' }}
     strategy:
       fail-fast: false
       max-parallel: 2
