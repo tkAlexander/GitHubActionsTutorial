@@ -23,28 +23,8 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       -
-        name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-      -
         id: set-matrix
-        run: |
-          echo "=============== list modified files ==============="
-          git diff --name-only HEAD^ HEAD
-          
-          echo "========== check paths of modified files =========="
-          modified_dirs=($(git diff --name-only HEAD^ HEAD | cut -d "/" -f 1 | sort | uniq))
-          versions=()
-          for dir in "${modified_dirs[@]}"; do
-            if [[ "$dir" =~ ^0|[1-9]\d*.0|[1-9]\d*.0|[1-9]\d* ]]; then
-              [ $dir = 3.6.15 ] && continue # 3.6.15 is not supported.
-              versions+=("$dir")
-            fi
-          done
-          
-          matrix=$(jq -c -n '$ARGS.positional' --args "${versions[@]}")
-          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+        uses: actions/list-versions@v1
 
   verify:
     needs: list-versions
