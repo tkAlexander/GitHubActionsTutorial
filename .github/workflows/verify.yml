@@ -1,0 +1,68 @@
+name: Build, test and push RabbitMQ images
+
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID || '942465369820' }}
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  AWS_REPOSITORY: 'enterprise-rabbitmq'
+
+jobs:
+  list-versions:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      -
+        id: set-matrix
+        uses: ./.github/actions/list-versions
+
+  verify:
+    needs: list-versions
+    runs-on: ubuntu-latest
+    if: ${{ needs.list-versions.outputs.matrix != '[]' && needs.list-versions.outputs.matrix != '' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        version: ${{ fromJson(needs.list-versions.outputs.matrix) }}
+    
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4 
+      -
+        name: Build and load
+        #        uses: docker/build-push-action@v5
+        run: |
+          echo Build and load
+          echo ${{ env.AWS_REPOSITORY }}:${{ matrix.version }}
+      #        with:
+      #          build-args: |
+      #            AWS_ACCOUNT_ID=${{ env.AWS_ACCOUNT_ID }}
+      #            AWS_SECRET_ACCESS_KEY
+      #            AWS_ACCESS_KEY_ID
+      #            AWS_SESSION_TOKEN
+      #          context: ./${{ matrix.version }}
+      #          load: true
+      #          tags: ${{ env.AWS_REPOSITORY }}:${{ matrix.version }}
+      -
+        name: Test
+        run: |
+          echo Test docker image
+          echo ${{ env.AWS_REPOSITORY }}:${{ matrix.version }}
+      #          docker run --rm --name rabbitmq-${{ matrix.version }} \
+      #            --health-cmd='rabbitmq-diagnostics -q ping' \
+      #            --health-interval=5s \
+      #            --health-timeout=5s \
+      #            --health-retries=10 \
+      #            -d ${{ env.AWS_REPOSITORY }}:${{ matrix.version }}
+      #          docker ps
+      #          docker stop rabbitmq-${{ matrix.version }}
