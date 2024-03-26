@@ -23,6 +23,11 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       -
+        name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      -
         id: set-matrix
         uses: ./.github/actions/list-versions
 
