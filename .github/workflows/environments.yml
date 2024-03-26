@@ -24,7 +24,7 @@ jobs:
     steps:
       -
         id: set-matrix
-        uses: actions/list-versions@v1
+        uses: ./.github/actions/list-versions@v1
 
   verify:
     needs: list-versions
