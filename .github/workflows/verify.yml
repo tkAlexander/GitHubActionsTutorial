@@ -4,6 +4,10 @@ on:
   push:
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 env:
   AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID || '942465369820' }}
   AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
@@ -11,34 +15,22 @@ env:
 
 jobs:
   list-versions:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-      -
-        name: Set matrix
-        id: set-matrix
-        uses: ./.github/actions/list-versions
+    uses: ./.github/workflows/_list-versions.yaml
 
-  verify:
+  docker-build:
     needs: list-versions
     runs-on: ubuntu-latest
-    if: ${{ needs.list-versions.outputs.matrix != '[]' && needs.list-versions.outputs.matrix != '' }}
+    if: ${{ needs.list-versions.outputs.versions != '[]' && needs.list-versions.outputs.versions != '' }}
     strategy:
       fail-fast: false
       max-parallel: 2
       matrix:
-        version: ${{ fromJson(needs.list-versions.outputs.matrix) }}
-    
+        version: ${{ fromJson(needs.list-versions.outputs.versions) }}
+
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v4 
+        uses: actions/checkout@v4
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -51,6 +43,11 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_ROLE }}
           aws-region: ${{ env.AWS_REGION }}
+      -
+        name: Login to ECR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
       -
         name: Build and load
         uses: docker/build-push-action@v5
@@ -66,8 +63,6 @@ jobs:
       -
         name: Test
         run: |
-          echo Test docker image
-          echo ${{ env.AWS_REPOSITORY }}:${{ matrix.version }}
           docker run --rm --name rabbitmq-${{ matrix.version }} \
             --health-cmd='rabbitmq-diagnostics -q ping' \
             --health-interval=5s \
