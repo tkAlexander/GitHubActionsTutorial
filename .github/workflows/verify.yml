@@ -1,4 +1,4 @@
-name: Build, test and push RabbitMQ images
+name: Verify images
 
 on:
   push:
@@ -21,6 +21,7 @@ jobs:
         with:
           fetch-depth: 2
       -
+        name: Set matrix
         id: set-matrix
         uses: ./.github/actions/list-versions
 
@@ -39,30 +40,39 @@ jobs:
         name: Checkout
         uses: actions/checkout@v4 
       -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      -
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE }}
+          aws-region: ${{ env.AWS_REGION }}
+      -
         name: Build and load
-        #        uses: docker/build-push-action@v5
-        run: |
-          echo Build and load
-          echo ${{ env.AWS_REPOSITORY }}:${{ matrix.version }}
-      #        with:
-      #          build-args: |
-      #            AWS_ACCOUNT_ID=${{ env.AWS_ACCOUNT_ID }}
-      #            AWS_SECRET_ACCESS_KEY
-      #            AWS_ACCESS_KEY_ID
-      #            AWS_SESSION_TOKEN
-      #          context: ./${{ matrix.version }}
-      #          load: true
-      #          tags: ${{ env.AWS_REPOSITORY }}:${{ matrix.version }}
+        uses: docker/build-push-action@v5
+        with:
+          build-args: |
+            AWS_ACCOUNT_ID=${{ env.AWS_ACCOUNT_ID }}
+            AWS_SECRET_ACCESS_KEY
+            AWS_ACCESS_KEY_ID
+            AWS_SESSION_TOKEN
+          context: ./${{ matrix.version }}
+          load: true
+          tags: ${{ env.AWS_REPOSITORY }}:${{ matrix.version }}
       -
         name: Test
         run: |
           echo Test docker image
           echo ${{ env.AWS_REPOSITORY }}:${{ matrix.version }}
-      #          docker run --rm --name rabbitmq-${{ matrix.version }} \
-      #            --health-cmd='rabbitmq-diagnostics -q ping' \
-      #            --health-interval=5s \
-      #            --health-timeout=5s \
-      #            --health-retries=10 \
-      #            -d ${{ env.AWS_REPOSITORY }}:${{ matrix.version }}
-      #          docker ps
-      #          docker stop rabbitmq-${{ matrix.version }}
+          docker run --rm --name rabbitmq-${{ matrix.version }} \
+            --health-cmd='rabbitmq-diagnostics -q ping' \
+            --health-interval=5s \
+            --health-timeout=5s \
+            --health-retries=10 \
+            -d ${{ env.AWS_REPOSITORY }}:${{ matrix.version }}
+          docker ps
+          docker stop rabbitmq-${{ matrix.version }}
