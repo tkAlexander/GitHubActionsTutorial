@@ -21,6 +21,7 @@ on:
       tag-suffix:
         required: false
         default: 'dev'
+        type: string
       push:
         required: false
         type: boolean
