@@ -1,23 +1,26 @@
-name: Test
+name: Build Dockerfiles
 
 on:
   workflow_call:
     inputs:
+      environment:
+        required: true
+        type: string
       version:
         required: true
         type: string
-      role-to-assume:
-        required: true
-        type: string
-      region:
-        required: true
-        type: string
-      account-id:
-        required: true
-        type: string
-      repository:
-        required: true
-        type: string
+#      role-to-assume:
+#        required: true
+#        type: string
+#      region:
+#        required: true
+#        type: string
+#      account-id:
+#        required: true
+#        type: string
+#      repository:
+#        required: true
+#        type: string
       tag-suffix:
         required: false
         default: 'dev'
@@ -28,7 +31,8 @@ on:
         default: false
 
 jobs:
-  list-versions:
+  build:
+    environment: ${{inputs.environment}}
     runs-on: ubuntu-latest
     steps:
       -
@@ -39,10 +43,10 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            name=${{ inputs.account-id }}.dkr.ecr.${{ inputs.region }}.amazonaws.com/${{ inputs.repository }}
+            name=${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}
           tags: |
-            type=raw,suffix=${{ inputs.tag-suffix }},value=${{ inputs.version }}
-#            type=raw,suffix=${{ inputs.tag-suffix }},value=${{ inputs.version }}
+            type=raw,suffix=_${{ inputs.tag-suffix }},value=${{ inputs.version }}
+            type=raw,suffix=_b${{ github.run_number }},value=${{ inputs.version }}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -53,25 +57,25 @@ jobs:
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.role-to-assume }}
-          aws-region: ${{ inputs.region }}
+          role-to-assume: ${{ vars.AWS_ROLE }}
+          aws-region: ${{ vars.AWS_REGION }}
       -
         name: Login to ECR
         uses: docker/login-action@v3
         with:
-          registry: ${{ inputs.account-id }}.dkr.ecr.${{ inputs.region }}.amazonaws.com
+          registry: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
       -
         name: Build and load
         uses: docker/build-push-action@v5
         with:
           build-args: |
-            AWS_ACCOUNT_ID=${{ inputs.account-id }}
+            AWS_ACCOUNT_ID=${{ vars.AWS_ACCOUNT_ID }}
             AWS_SECRET_ACCESS_KEY
             AWS_ACCESS_KEY_ID
             AWS_SESSION_TOKEN
           context: ./${{ inputs.version }}
           load: true
-          tags: ${{ inputs.repository }}:${{ inputs.version }}
+          tags: ${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}
       -
         name: Test
         run: |
@@ -80,7 +84,7 @@ jobs:
             --health-interval=5s \
             --health-timeout=5s \
             --health-retries=10 \
-            -d ${{ inputs.repository }}:${{ inputs.version }}
+            -d ${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}
           docker ps
           docker stop rabbitmq-${{ inputs.version }}
       -
@@ -89,17 +93,17 @@ jobs:
           cd ./${{ inputs.version }}
           echo "PLATFORM=$(cat .platform)" >> "$GITHUB_ENV"     
       -
-        name: Build
+        name: Build and push
         uses: docker/build-push-action@v5
         with:
           build-args: |
-            AWS_ACCOUNT_ID=${{ inputs.account-id }}
+            AWS_ACCOUNT_ID=${{ vars.AWS_ACCOUNT_ID }}
             AWS_SECRET_ACCESS_KEY
             AWS_ACCESS_KEY_ID
             AWS_SESSION_TOKEN
           context: ./${{ inputs.version }}
           platforms: ${{ env.PLATFORM }}
           push: ${{ inputs.push }}
-#          tags: ${{ inputs.account-id }}.dkr.ecr.${{ inputs.region }}.amazonaws.com/${{ inputs.repository }}:${{ inputs.version }}
+#          tags: ${{ inputs.account-id }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

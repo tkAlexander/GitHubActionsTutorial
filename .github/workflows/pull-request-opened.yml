@@ -18,7 +18,6 @@ jobs:
     uses: ./.github/workflows/_list-versions.yml
 
   deploy-development:
-#    environment: Development
     needs: list-versions
     if: ${{ needs.list-versions.outputs.versions != '[]' && needs.list-versions.outputs.versions != '' }}
     strategy:
@@ -29,8 +28,9 @@ jobs:
     
     uses: ./.github/workflows/_build.yaml
     with:
+      environment: Development
       version: ${{ matrix.version }}
-      role-to-assume: ${{ vars.AWS_ROLE }}
-      region: ${{ vars.AWS_REGION }}
-      account-id: ${{ vars.AWS_ACCOUNT_ID }}
-      repository: ${{ vars.AWS_REPOSITORY }}
+#      role-to-assume: ${{ vars.AWS_ROLE }}
+#      region: ${{ vars.AWS_REGION }}
+#      account-id: ${{ vars.AWS_ACCOUNT_ID }}
+#      repository: ${{ vars.AWS_REPOSITORY }}
