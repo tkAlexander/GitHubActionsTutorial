@@ -5,19 +5,23 @@ on:
     inputs:
       version:
         required: true
-        type: string      
+        type: string
       role-to-assume:
         required: true
         type: string
       region:
         required: true
-        type: string      
+        type: string
       account-id:
         required: true
-        type: string      
+        type: string
       repository:
         required: true
         type: string
+      push:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   list-versions:
@@ -66,3 +70,16 @@ jobs:
             -d ${{ inputs.repository }}:${{ inputs.version }}
           docker ps
           docker stop rabbitmq-${{ inputs.version }}
+      -
+        name: Build
+        uses: docker/build-push-action@v5
+        with:
+          build-args: |
+            AWS_ACCOUNT_ID=${{ inputs.account-id }}
+            AWS_SECRET_ACCESS_KEY
+            AWS_ACCESS_KEY_ID
+            AWS_SESSION_TOKEN
+          context: ./${{ matrix.version }}
+          platforms: ${{ env.PLATFORM }}
+          push: ${{ inputs.push }}
+          tags: ${{ inputs.account-id }}.dkr.ecr.${{ inputs.region }}.amazonaws.com/${{ inputs.repository }}:${{ inputs.version }}
