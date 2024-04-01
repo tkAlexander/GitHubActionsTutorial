@@ -84,7 +84,7 @@ jobs:
             AWS_SECRET_ACCESS_KEY
             AWS_ACCESS_KEY_ID
             AWS_SESSION_TOKEN
-            context: ./${{ inputs.version }}
+          context: ./${{ inputs.version }}
           platforms: ${{ env.PLATFORM }}
           push: ${{ inputs.push }}
           tags: ${{ inputs.account-id }}.dkr.ecr.${{ inputs.region }}.amazonaws.com/${{ inputs.repository }}:${{ inputs.version }}
