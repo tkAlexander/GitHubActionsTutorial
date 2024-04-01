@@ -18,7 +18,7 @@ jobs:
     uses: ./.github/workflows/_list-versions.yml
 
   deploy-development:
-    environment: Development
+#    environment: Development
     needs: list-versions
     if: ${{ needs.list-versions.outputs.versions != '[]' && needs.list-versions.outputs.versions != '' }}
     strategy:

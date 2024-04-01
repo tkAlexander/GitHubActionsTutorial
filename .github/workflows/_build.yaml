@@ -18,9 +18,9 @@ on:
       repository:
         required: true
         type: string
-      tags:
-        required: false
-        default: ''
+#      tags:
+#        required: false
+#        default: ''
       push:
         required: false
         type: boolean
