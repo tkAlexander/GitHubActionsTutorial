@@ -10,9 +10,6 @@ permissions:
   id-token: write
   contents: read
 
-#env:
-#  AWS_REPOSITORY: 'enterprise-rabbitmq'
-
 jobs:
   list-versions:
     uses: ./.github/workflows/_list-versions.yml
@@ -30,7 +27,4 @@ jobs:
     with:
       environment: Development
       version: ${{ matrix.version }}
-#      role-to-assume: ${{ vars.AWS_ROLE }}
-#      region: ${{ vars.AWS_REGION }}
-#      account-id: ${{ vars.AWS_ACCOUNT_ID }}
-#      repository: ${{ vars.AWS_REPOSITORY }}
+      push: true

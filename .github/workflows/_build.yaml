@@ -9,18 +9,6 @@ on:
       version:
         required: true
         type: string
-#      role-to-assume:
-#        required: true
-#        type: string
-#      region:
-#        required: true
-#        type: string
-#      account-id:
-#        required: true
-#        type: string
-#      repository:
-#        required: true
-#        type: string
       tag-suffix:
         required: false
         default: 'dev'
@@ -29,6 +17,10 @@ on:
         required: false
         type: boolean
         default: false
+    outputs:
+      manifests:
+        description: "Image manifests"
+        value: ${{ jobs.build.outputs.manifests }}
 
 jobs:
   build:
@@ -106,4 +98,4 @@ jobs:
           push: ${{ inputs.push }}
 #          tags: ${{ inputs.account-id }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+#          labels: ${{ steps.meta.outputs.labels }}
