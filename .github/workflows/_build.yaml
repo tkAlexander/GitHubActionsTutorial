@@ -20,7 +20,7 @@ on:
         type: string
       tags:
         required: false
-        default: 
+        default: ''
       push:
         required: false
         type: boolean
