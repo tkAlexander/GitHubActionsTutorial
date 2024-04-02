@@ -1,10 +1,5 @@
 {
-  "buildx.build.ref": "builder-6704ba98-9c97-4682-94ab-1d143a25621b/builder-6704ba98-9c97-4682-94ab-1d143a25621b0/n0psgon4nt6vdwzc3qq2sxqnx",
-  "containerimage.descriptor": {
     "mediaType": "application/vnd.oci.image.index.v1+json",
-    "digest": "sha256:25c94fce04b5a554bc7b40a4a83a1e4cdffd06161348ab5ae644963742fdf20a",
+    "digest": "sha256:93f312adbaf67990c579964234f87db8d5e85fc41fc3df28718f34075cd37dea",
     "size": 1609
-  },
-  "containerimage.digest": "sha256:25c94fce04b5a554bc7b40a4a83a1e4cdffd06161348ab5ae644963742fdf20a",
-  "image.name": "445787923232.dkr.ecr.eu-west-1.amazonaws.com/test-rabbitmq:3.11.27_test,445787923232.dkr.ecr.eu-west-1.amazonaws.com/test-rabbitmq:3.11.27_b3"
 }
