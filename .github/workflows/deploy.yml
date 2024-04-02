@@ -27,9 +27,10 @@ jobs:
     with:
       environment: Test
       version: ${{ matrix.version }}
+      tag-suffix: "test"
+      push: true
 
   deploy-production:
-    environment: Production
     needs:
       - list-versions
       - deploy-test
@@ -40,7 +41,8 @@ jobs:
       matrix:
         version: ${{ fromJson(needs.list-versions.outputs.versions) }}
 
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v4
+    uses: ./.github/workflows/_copy.yaml
+    with:
+      environment: Production
+      version: ${{ matrix.version }}
+      metadata: ${{ needs.deploy-test.outputs.metadata }}

@@ -10,24 +10,23 @@ on:
         required: true
         type: string
       tag-suffix:
-        required: false
-        default: 'dev'
+        required: true
         type: string
       push:
         required: false
         type: boolean
         default: false
     outputs:
-      image_name:
-        description: "Image name"
-        value: ${{ jobs.build.outputs.image_name }}
+      metadata:
+        description: "Image metadata"
+        value: ${{ jobs.build.outputs.metadata }}
 
 jobs:
   build:
     environment: ${{inputs.environment}}
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.get-build-name.outputs.image_name }}
+      metadata: ${{ steps.docker-build-push.outputs.metadata }}
     steps:
       -
         name: Checkout
@@ -102,8 +101,8 @@ jobs:
 #          tags: ${{ inputs.account-id }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}
           tags: ${{ steps.meta.outputs.tags }}
 #          labels: ${{ steps.meta.outputs.labels }}
-      - 
-        id: get-build-name
-        run: |
-          imageName=${{ fromJSON(steps.docker-build-push.outputs.metadata)['image.name'] }}
-          echo "image_name=${imageName}" >> $GITHUB_OUTPUT
+#      - 
+#        id: get-build-name
+#        run: |
+#          imageName=${{ fromJSON(steps.docker-build-push.outputs.metadata)['image.name'] }}
+#          echo "image_name=${imageName}" >> $GITHUB_OUTPUT
