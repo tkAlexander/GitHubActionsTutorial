@@ -38,11 +38,11 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
-      -
-        name: Login to prod ECR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
+#      -
+#        name: Login to prod ECR
+#        uses: docker/login-action@v3
+#        with:
+#          registry: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
       -
         name: Copy
         run: |
