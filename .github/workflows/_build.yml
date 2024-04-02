@@ -17,29 +17,29 @@ on:
         type: boolean
         default: false
     outputs:
-      metadata:
-        description: "Image metadata"
-        value: ${{ jobs.build.outputs.metadata }}
+      digest:
+        description: "Image digest"
+        value: ${{ jobs.build.outputs.digest }}
 
 jobs:
   build:
     environment: ${{inputs.environment}}
     runs-on: ubuntu-latest
     outputs:
-      metadata: ${{ steps.docker-build-push.outputs.metadata }}
+      metadata: ${{ steps.docker-build-push.outputs.digest }}
     steps:
       -
         name: Checkout
         uses: actions/checkout@v4
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            name=${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}
-          tags: |
-            type=raw,suffix=_${{ inputs.tag-suffix }},value=${{ inputs.version }}
-            type=raw,suffix=_b${{ github.run_number }},value=${{ inputs.version }}
+#      - name: Docker meta
+#        id: meta
+#        uses: docker/metadata-action@v5
+#        with:
+#          images: |
+#            name=${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}
+#          tags: |
+#            type=raw,suffix=_${{ inputs.tag-suffix }},value=${{ inputs.version }}
+#            type=raw,suffix=_b${{ github.run_id }},value=${{ inputs.version }}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -98,8 +98,10 @@ jobs:
           context: ./${{ inputs.version }}
           platforms: ${{ env.PLATFORM }}
           push: ${{ inputs.push }}
-#          tags: ${{ inputs.account-id }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}
-          tags: ${{ steps.meta.outputs.tags }}
+#          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_${{ inputs.tag-suffix }}
+            ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_b${{ github.run_id }}
 #          labels: ${{ steps.meta.outputs.labels }}
 #      - 
 #        id: get-build-name

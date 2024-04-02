@@ -45,4 +45,4 @@ jobs:
     with:
       environment: Production
       version: ${{ matrix.version }}
-      metadata: ${{ needs.deploy-test.outputs.metadata }}
+      digest: ${{ needs.deploy-test.outputs.digest }}
