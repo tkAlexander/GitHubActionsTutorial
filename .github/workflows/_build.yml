@@ -16,17 +16,11 @@ on:
         required: false
         type: boolean
         default: false
-    outputs:
-      digest:
-        description: "Image digest"
-        value: ${{ jobs.build.outputs.digest }}
 
 jobs:
   build:
     environment: ${{inputs.environment}}
     runs-on: ubuntu-latest
-    outputs:
-      digest: ${{ steps.docker-build-push.outputs.digest }}
     steps:
       -
         name: Checkout
