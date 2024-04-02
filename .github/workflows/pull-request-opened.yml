@@ -4,78 +4,28 @@ on:
   pull_request:
     branches:
       - 'master'
-    types: 
-      - 'opened'
-      - 'synchronize'
+  workflow_dispatch:
 
-env:
-  AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID || '942465369820' }}
-  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
-  AWS_REPOSITORY: 'enterprise-rabbitmq'
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   list-versions:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-      -
-        id: set-matrix
-        uses: ./.github/actions/list-versions
-  
+    uses: ./.github/workflows/_list-versions.yml
+
   deploy-development:
-    environment: Development
-    if: ${{ needs.list-versions.outputs.matrix != '[]' && needs.list-versions.outputs.matrix != '' }}
-    needs:
-      - list-versions
-    runs-on: ubuntu-latest
-    
+    needs: list-versions
+    if: ${{ needs.list-versions.outputs.versions != '[]' && needs.list-versions.outputs.versions != '' }}
     strategy:
       fail-fast: false
       max-parallel: 2
       matrix:
-        version: ${{ fromJson(needs.list-versions.outputs.matrix) }}  
+        version: ${{ fromJson(needs.list-versions.outputs.versions) }}
     
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v4
-      #      -
-      #        name: Docker meta
-      #        id: meta
-      #        run: |
-      #          echo "TAGS=${{ matrix.version }} >> "$GITHUB_ENV"
-      #      -
-      #        name: Set up QEMU
-      #        uses: docker/setup-qemu-action@v3
-      #      -
-      #        name: Set up Docker Buildx
-      #        uses: docker/setup-buildx-action@v3
-      #      -
-      #        name: Configure AWS Credentials
-      #        uses: aws-actions/configure-aws-credentials@v4
-      #        with:
-      #          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #          aws-region: ${{ env.AWS_REGION }}
-
-      #      -
-      #        name: Set platform
-      #        run: |
-      #          cd ./${{ matrix.version }}
-      #          echo "PLATFORM=$(cat .platform)" >> "$GITHUB_ENV"  
-#      -
-#        name: Set tags
-#        run: |
-#          cd ./${{ matrix.version }}
-#          echo "TAGS=[${{ matrix.version }}_dev, ${{ matrix.version }}_b${{ github.run_number }}]" >> "$GITHUB_ENV" 
-      -
-        name: Build and push to dev
-        run: |
-          echo Build and push to development
-          echo ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com${{ env.AWS_REPOSITORY }}:${{ matrix.version }}_pr${{ github.event.number }}
+    uses: ./.github/workflows/_build.yaml
+    with:
+      environment: Development
+      version: ${{ matrix.version }}
+      tag-suffix: "dev"
+      push: true
