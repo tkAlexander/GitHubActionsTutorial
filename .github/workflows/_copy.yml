@@ -49,4 +49,4 @@ jobs:
           docker buildx imagetools create \
             --tag ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_stable \
             --tag ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_b${{ github.run_id }} \
-            ${{ inputs.digest }}
+            ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}@${{ inputs.digest }}
