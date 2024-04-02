@@ -23,7 +23,7 @@ jobs:
       matrix:
         version: ${{ fromJson(needs.list-versions.outputs.versions) }}
     
-    uses: ./.github/workflows/_build.yaml
+    uses: ./.github/workflows/_build.yml
     with:
       environment: Development
       version: ${{ matrix.version }}
