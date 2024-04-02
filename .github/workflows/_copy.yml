@@ -9,7 +9,7 @@ on:
       version:
         required: true
         type: string
-      metadata:
+      digest:
         required: true
         type: string        
 
@@ -46,8 +46,7 @@ jobs:
       -
         name: Copy
         run: |
-          echo "${{ inputs.metadata }}" > descr.json 
           docker buildx imagetools create \
             --tag ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_stable \
-            --tag ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_b${{ github.run_number }} \
-            -f descr.json 
+            --tag ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_b${{ github.run_id }} \
+            ${{ inputs.digest }}
