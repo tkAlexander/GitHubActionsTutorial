@@ -29,20 +29,20 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_ROLE }}
-          aws-region: ${{ vars.AWS_REGION }}
+          aws-region: ${{ vars.DEV_AWS_REGION }}
       -
         name: Login to dev ECR
         uses: docker/login-action@v3
         with:
-          registry: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
+          registry: ${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com
 #      -
 #        name: Login to prod ECR
 #        uses: docker/login-action@v3
 #        with:
-#          registry: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
+#          registry: ${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com
       -
         name: Copy
         run: |
           docker buildx imagetools create \
-            --tag ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_stable \
-            ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_b${{ github.run_id }}
+            --tag ${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_stable \
+            ${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_b${{ github.run_id }}
