@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REGISTRY: ${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com
-      IMAGE_NAME: ${{ env.REGISTRY }}/${{ vars.AWS_REPOSITORY }}
+      IMAGE_NAME: ${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}
     steps:
       -
         name: Checkout
@@ -29,21 +29,30 @@ jobs:
         id: tags
         run: |
           environment="${{ inputs.environment }}"
+          git_branch=${{ github.ref }}
+          
           tags=()
           tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_b${{ github.run_id }}")
           
           case $environment in
-            development) 
-              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_dev") 
+            development)
+              case $git_branch in
+                refs/heads/develop)
+                  tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_dev")
+                  ;;
+                refs/heads/feature/*)
+                  tags+=("${{ env.IMAGE_NAME }}:feature_branch_${{ inputs.version }}_dev")
+                  ;;          
+              esac
               ;;
-            test) 
-              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_test") 
+            test)
+              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_test")
               ;;
-            production) 
-              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_stable") 
+            production)
+              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_stable")
               ;;
-            *) 
-              echo "Invalid environment: ${environment}!" && exit 1 
+            *)
+              echo "Invalid environment: ${environment}!" && exit 1
             ;;
           esac
   
