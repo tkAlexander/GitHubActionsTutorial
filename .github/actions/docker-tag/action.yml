@@ -2,9 +2,6 @@ name: docker-tag
 description: Generate image tags
   
 inputs:
-  images:
-    description: List of images
-    required: true
   environment:
     description: New tags
     required: true
@@ -25,12 +22,8 @@ runs:
       id: set-tags
       shell: bash
       run: |
-        images = "{{ inputs.images }}"
         tags=()
-        for image in "${image[@]}"; do
-          echo "IMAGE: ${image}"
-          tags+=("${image}:_b${{ github.run_id }}")
-        done
+        tags+=(${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_b${{ github.run_id }}")
         
         tags=$(jq -c -n '$ARGS.positional' --args "${tags[@]}")
         echo "tags=$tags" >> $GITHUB_OUTPUT
