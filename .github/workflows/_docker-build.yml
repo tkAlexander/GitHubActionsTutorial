@@ -32,10 +32,10 @@ jobs:
           git_branch=${{ github.ref }}
           
           tags=()
-          tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_b${{ github.run_id }}")
           
           case $environment in
             development)
+              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_b${{ github.run_id }}")
               case $git_branch in
                 refs/heads/develop)
                   tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_dev")
@@ -46,14 +46,13 @@ jobs:
               esac
               ;;
             test)
+              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_b${{ github.run_id }}")
               tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_test")
               ;;
             production)
+              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_b${{ github.run_id }}")
               tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_stable")
               ;;
-            *)
-              echo "Invalid environment: ${environment}!" && exit 1
-            ;;
           esac
   
           echo "tags=$(printf ",%s" "${tags[@]}")" >> $GITHUB_OUTPUT
