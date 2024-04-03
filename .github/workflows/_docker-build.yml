@@ -32,9 +32,9 @@ jobs:
           tags+=(${registry}:${{ inputs.version }}_b${{ github.run_id }}")
           
           case $environment in
-            development) tags+=(${registry}:${{ inputs.version }}_dev") ;;
-            test) tags+=(${registry}:${{ inputs.version }}_test") ;;
-            production) tags+=(${registry}:${{ inputs.version }}_stable") ;;
+            development) tags+=("${registry}:${{ inputs.version }}_dev") ;;
+            test) tags+=("${registry}:${{ inputs.version }}_test") ;;
+            production) tags+=("${registry}:${{ inputs.version }}_stable") ;;
             *) echo "Invalid environment!: ${environment}" && exit 1 ;;
           esac
   
