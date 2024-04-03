@@ -26,20 +26,15 @@ jobs:
         id: tags
         run: |
           environment="${{ inputs.environment }}"
+          registry="${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}"
           tags=()
           
-          tags+=(${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_b${{ github.run_id }}")
+          tags+=(${registry}:${{ inputs.version }}_b${{ github.run_id }}")
           
           case $environment in
-            development)
-              tags+=(${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_dev")
-              ;;
-            test)
-              tags+=(${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_test")
-              ;;
-            production)
-              tags+=(${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_stable")
-              ;;
+            development) tags+=(${registry}:${{ inputs.version }}_dev") ;;
+            test) tags+=(${registry}:${{ inputs.version }}_test") ;;
+            production) tags+=(${registry}:${{ inputs.version }}_stable") ;;
           esac
   
           tags=$(jq -c -n '$ARGS.positional' --args "${tags[@]}")
