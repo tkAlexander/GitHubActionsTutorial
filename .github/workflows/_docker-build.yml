@@ -38,8 +38,7 @@ jobs:
             *) echo "Invalid environment!: ${environment}" && exit 1 ;;
           esac
   
-          tags=$(jq -c -n '$ARGS.positional' --args "${tags[@]}")
-          echo "tags=$tags" >> $GITHUB_OUTPUT
+          echo "tags=$(printf ",%s" "${tags[@]}")" >> $GITHUB_OUTPUT
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
