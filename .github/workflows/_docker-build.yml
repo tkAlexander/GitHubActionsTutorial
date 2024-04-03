@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REGISTRY: ${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com
-      IMAGE_NAME: ${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}
+      IMAGE_NAME: ${{ env.REGISTRY }}/${{ vars.AWS_REPOSITORY }}
     steps:
       -
         name: Checkout
