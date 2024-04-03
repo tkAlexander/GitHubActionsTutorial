@@ -24,10 +24,25 @@ jobs:
         uses: actions/checkout@v4
       - name: Docker tags
         id: tags
-        uses: ./.github/actions/docker-tag
-        with:
-          environment: ${{ inputs.environment }}
-          version: ${{ inputs.version }}
+        run: |
+          tags=()
+          
+          tags+=(${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_b${{ github.run_id }}")
+          
+          case ${{ inputs.environment }} in
+            development)
+            tags+=(${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_dev")
+            ;;
+            test)
+            tags+=(${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_test")
+            ;;
+            production)
+            tags+=(${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_stable")
+            ;;
+          esac
+  
+          tags=$(jq -c -n '$ARGS.positional' --args "${tags[@]}")
+          echo "tags=$tags" >> $GITHUB_OUTPUT
           
 #          tags: |
 #            type=raw,suffix=_${{ inputs.tag-suffix }},value=${{ inputs.version }}
