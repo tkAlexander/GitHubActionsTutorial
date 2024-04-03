@@ -18,6 +18,9 @@ jobs:
   build:
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
+    env:
+      REGISTRY: ${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com
+      IMAGE_NAME: ${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}
     steps:
       -
         name: Checkout
@@ -26,16 +29,22 @@ jobs:
         id: tags
         run: |
           environment="${{ inputs.environment }}"
-          registry="${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}"
           tags=()
-          
-          tags+=("${registry}:${{ inputs.version }}_b${{ github.run_id }}")
+          tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_b${{ github.run_id }}")
           
           case $environment in
-            development) tags+=("${registry}:${{ inputs.version }}_dev") ;;
-            test) tags+=("${registry}:${{ inputs.version }}_test") ;;
-            production) tags+=("${registry}:${{ inputs.version }}_stable") ;;
-            *) echo "Invalid environment!: ${environment}" && exit 1 ;;
+            development) 
+              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_dev") 
+              ;;
+            test) 
+              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_test") 
+              ;;
+            production) 
+              tags+=("${{ env.IMAGE_NAME }}:${{ inputs.version }}_stable") 
+              ;;
+            *) 
+              echo "Invalid environment: ${environment}!" && exit 1 
+            ;;
           esac
   
           echo "tags=$(printf ",%s" "${tags[@]}")" >> $GITHUB_OUTPUT
@@ -55,7 +64,7 @@ jobs:
         name: Login to dev ECR
         uses: docker/login-action@v3
         with:
-          registry: ${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com
+          registry: ${{ env.REGISTRY }}
       -
         name: Build and load
         uses: docker/build-push-action@v5
@@ -98,6 +107,3 @@ jobs:
           platforms: ${{ env.PLATFORM }}
           push: ${{ inputs.push }}
           tags: ${{ steps.tags.outputs.tags }}
-#          tags: |
-#            ${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_${{ inputs.tag-suffix }}
-#            ${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_b${{ github.run_id }}
