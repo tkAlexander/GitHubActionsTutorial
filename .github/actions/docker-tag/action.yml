@@ -1,0 +1,36 @@
+name: docker-tag
+description: Generate image tags
+  
+inputs:
+  images:
+    description: List of images
+    required: true
+  environment:
+    description: New tags
+    required: true
+  version:
+    description: Version
+    required: true   
+
+outputs:
+  tags:
+    description: Tags
+    value: ${{ steps.set-tags.outputs.tags }}
+
+runs:
+  using: composite
+  steps:
+    -
+      name: Set tags
+      id: set-tags
+      shell: bash
+      run: |
+        images = "{{ inputs.images }}"
+        tags=()
+        for image in "${image[@]}"; do
+          echo "IMAGE: ${image}"
+          tags+=("${image}:_b${{ github.run_id }}")
+        done
+        
+        tags=$(jq -c -n '$ARGS.positional' --args "${tags[@]}")
+        echo "tags=$tags" >> $GITHUB_OUTPUT

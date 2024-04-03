@@ -1,9 +1,9 @@
 name: Build, test and push RabbitMQ images
 
 on:
-#  pull_request:
-#    branches:
-#      - 'master'
+  push:
+    branches:
+      - 'feature/**'
   workflow_dispatch:
 
 permissions:
@@ -14,7 +14,7 @@ jobs:
   list-versions:
     uses: ./.github/workflows/_list-versions.yml
 
-  deploy-development:
+  development:
     needs: list-versions
     if: ${{ needs.list-versions.outputs.versions != '[]' && needs.list-versions.outputs.versions != '' }}
     strategy:
@@ -23,9 +23,9 @@ jobs:
       matrix:
         version: ${{ fromJson(needs.list-versions.outputs.versions) }}
     
-    uses: ./.github/workflows/_build.yml
+    uses: ./.github/workflows/_docker-build.yml
     with:
-      environment: Development
+      environment: development
       version: ${{ matrix.version }}
       tag-suffix: "dev"
       push: true

@@ -23,7 +23,7 @@ jobs:
       matrix:
         version: ${{ fromJson(needs.list-versions.outputs.versions) }}
     
-    uses: ./.github/workflows/_build.yml
+    uses: ./.github/workflows/_docker-build.yml
     with:
       environment: Test
       version: ${{ matrix.version }}
@@ -41,7 +41,7 @@ jobs:
       matrix:
         version: ${{ fromJson(needs.list-versions.outputs.versions) }}
 
-    uses: ./.github/workflows/_copy.yml
+    uses: ./.github/workflows/_docker-copy.yml
     with:
       environment: Production
       version: ${{ matrix.version }}
