@@ -27,7 +27,6 @@ jobs:
     with:
       environment: Test
       version: ${{ matrix.version }}
-      tag-suffix: "test"
       push: true
 
   deploy-production:

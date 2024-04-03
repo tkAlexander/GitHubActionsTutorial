@@ -27,5 +27,4 @@ jobs:
     with:
       environment: development
       version: ${{ matrix.version }}
-      tag-suffix: "dev"
       push: true
