@@ -12,18 +12,7 @@ inputs:
 outputs:
   tags:
     description: Tags
-    value: ${{ steps.set-tags.outputs.tags }}
 
 runs:
-  using: composite
-  steps:
-    -
-      name: Set tags
-      id: set-tags
-      shell: bash
-      run: |
-        tags=()
-        tags+=(${{ vars.DEV_AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.DEV_AWS_REGION }}.amazonaws.com/${{ vars.AWS_REPOSITORY }}:${{ inputs.version }}_b${{ github.run_id }}")
-        
-        tags=$(jq -c -n '$ARGS.positional' --args "${tags[@]}")
-        echo "tags=$tags" >> $GITHUB_OUTPUT
+  using: 'node20'
+  main: 'index.js'
